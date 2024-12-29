@@ -7,10 +7,12 @@ authors = [
     { name = "Jonas Ehrlich", email = "jonas.ehrlich@gmail.com" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.10.4",
+]
 
 [project.scripts]
-recipe-converter = "recipe_converter:main"
+recipe-converter = "recipe_converter.__main__:main"
 
 [build-system]
 requires = ["hatchling"]

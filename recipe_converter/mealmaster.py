@@ -103,8 +103,12 @@ def _parse_ingredients_groups(buffer: io.StringIO) -> list[IngredientsGroup]:
         stripped_line = Patterns.MULTI_SPACE.sub(" ", line.strip())
         if stripped_line.startswith("-"):
             # This line is a continuation of the previous ingredient.
-            ingredients_group.ingredients[-1] += " "
-            ingredients_group.ingredients[-1] += stripped_line[2:]
+            if not ingredients_group.ingredients:
+                # There is no previous ingredient to continue.
+                ingredients_group.ingredients.append(stripped_line[2:])
+            else:
+                ingredients_group.ingredients[-1] += " "
+                ingredients_group.ingredients[-1] += stripped_line[2:]
             continue
 
         ingredients_group.ingredients.append(stripped_line)
@@ -132,8 +136,16 @@ def _parse_recipe(buffer: TextIO) -> Recipe:
     :return: Recipe object.
     """
     recipe = Recipe()
-    _parse_header(recipe, buffer)
-    recipe.ingredients_groups = _parse_ingredients(buffer)
+    try:
+        _parse_header(recipe, buffer)
+    except Exception as exc:
+        buffer.seek(0)
+        raise ValueError(f"Error parsing header of recipe {buffer.readline()}") from exc
+
+    try:
+        recipe.ingredients_groups = _parse_ingredients(buffer)
+    except Exception as exc:
+        raise ValueError(f"Error parsing ingredients of recipe {recipe.title}") from exc
 
     instructions = io.StringIO()
     for line in buffer:

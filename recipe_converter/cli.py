@@ -1,22 +1,42 @@
 import argparse
 import pathlib
 from typing import Protocol
+from recipe_converter import mealmaster, melarecipes
+import sys
 
 
 class Converter(Protocol):
     def __call__(self, input: pathlib.Path, output: pathlib.Path) -> None: ...
 
 
-def mealmaster_to_mela(input: pathlib.Path, output: pathlib.Path):
-    from recipe_converter import mealmaster
-    with input.open("r") as file:
-        recipes = mealmaster.parse(file)
-        print(next(recipes))
+def mealmaster_to_melarecipe(mm_recipe: mealmaster.Recipe) -> melarecipes.Recipe:
+    """Convert a Meal-Master recipe to a Mela recipe."""
+    ingredients = ""
+    for group in mm_recipe.ingredients_groups:
+        ingredients += f"# {group.title}\n{'\n'.join(group.ingredients)}\n"
 
+    melarecipe = melarecipes.Recipe(
+        title=mm_recipe.title,
+        categories=mm_recipe.categories,
+        yield_=mm_recipe.servings,
+        ingredients=ingredients,
+        instructions=mm_recipe.instructions,
+    )
+    return melarecipe
+
+
+def mealmaster_to_melarecipes(input: pathlib.Path, output: pathlib.Path):
+    with input.open("r") as file:
+        mm_recipes = mealmaster.parse(file)
+        mela_recipes = []
+
+        for mm_recipe in mm_recipes:
+            mela_recipes.append(mealmaster_to_melarecipe(mm_recipe))
+        melarecipes.write(output, mela_recipes)
 
 
 CONVERTERS: tuple[tuple[str, str, Converter], ...] = (
-    (".mmf", ".melarecipes", mealmaster_to_mela),
+    (".mmf", ".melarecipes", mealmaster_to_melarecipes),
 )
 
 
@@ -55,4 +75,5 @@ def main():
     try:
         run_converter(namespace.input, namespace.output)
     except Exception as exc:
-        parser.error(str(exc))
+        print(f"Error: {exc}")
+        sys.exit(1)
