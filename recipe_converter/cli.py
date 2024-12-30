@@ -21,6 +21,11 @@ def mealmaster_to_melarecipe(mm_recipe: mealmaster.Recipe) -> melarecipes.Recipe
         yield_=mm_recipe.servings,
         ingredients=ingredients,
         instructions=mm_recipe.instructions,
+        nutrition=mm_recipe.nutrition,
+        cook_time=mm_recipe.cook_time,
+        prep_time=mm_recipe.prep_time,
+        total_time=mm_recipe.total_time,
+        notes=mm_recipe.notes,
     )
     return melarecipe
 

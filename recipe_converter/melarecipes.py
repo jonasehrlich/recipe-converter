@@ -30,14 +30,14 @@ class Recipe(pydantic.BaseModel):
         default="", alias=str("yield"), description="Yield or servings"
     )
     prep_time: str = pydantic.Field(
-        default="", alias="prepTime", description="Preparation time"
+        default="", alias=str("prepTime"), description="Preparation time"
     )
     cook_time: str = pydantic.Field(
-        default="", alias="cookTime", description="Cook time"
+        default="", alias=str("cookTime"), description="Cook time"
     )
     total_time: str = pydantic.Field(
         default="",
-        alias="totalTime",
+        alias=str("totalTime"),
         description="Total time it takes to prepare and cook the dish. This: does not have to be the sum of prepTime and cookTime (but mostly is).",
     )
     ingredients: str = pydantic.Field(

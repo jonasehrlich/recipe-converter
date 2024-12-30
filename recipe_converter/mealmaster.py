@@ -15,9 +15,16 @@ class IngredientsGroup:
 class Recipe:
     title: str = ""
     servings: str = ""
+    cook_time: str = ""
+    prep_time: str = ""
+    total_time: str = ""
+    total_time: str = ""
     categories: list[str] = dataclasses.field(default_factory=list)
     ingredients_groups: list[IngredientsGroup] = dataclasses.field(default_factory=list)
     instructions: str = ""
+    nutrition: str = ""
+    source: str = ""
+    notes: str = ""
 
 
 class Patterns:
@@ -28,8 +35,23 @@ class Patterns:
     TITLE_LINE = re.compile(r"^\s*Title:\s*(.+)", re.MULTILINE)
     CATEGORIES_LINE = re.compile(r"^\s*Categories:\s*(.+)", re.MULTILINE)
     SERVINGS_LINE = re.compile(r"^\s*Servings:\s*(.+)", re.MULTILINE)
+    PREP_TIME_LINE = re.compile(
+        r"^\s*Prep(?:aration) Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
+    )
+    COOK_TIME_LINE = re.compile(
+        r"^\s*Cook(?:ing) Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
+    )
+    TOTAL_TIME_LINE = re.compile(
+        r"^\s*Total Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
+    )
+    SOURCE_COMMENT_LINE = re.compile(
+        r"^::Quelle:\s*:\s*(.+)", re.MULTILINE | re.IGNORECASE
+    )
+    NOTES_LINE = re.compile(r"^\s*Notes:\s*(.+)", re.MULTILINE | re.IGNORECASE)
 
     COMMENT_LINE = re.compile(r"^::(.+)", re.MULTILINE)
+    CATEGORIES_COMMENT_LINE = re.compile(r"^::Stichworte\s+:\s+:\s(.+)", re.MULTILINE)
+    NUTRITIONAL_LINE = re.compile(r"^::Energie\s+:\s+:\s(.+)", re.MULTILINE)
     MULTI_SPACE = re.compile(r"\s+")
 
 
@@ -72,6 +94,30 @@ def _parse_header(recipe: Recipe, f: TextIO) -> None:
         if servings_match:
             recipe.servings = servings_match.group(1)
             started = True
+            continue
+
+        prep_time_match = Patterns.PREP_TIME_LINE.match(line)
+        if prep_time_match:
+            started = True
+            recipe.prep_time = prep_time_match.group(1)
+            continue
+
+        cook_time_match = Patterns.COOK_TIME_LINE.match(line)
+        if cook_time_match:
+            started = True
+            recipe.cook_time = cook_time_match.group(1)
+            continue
+
+        total_time_match = Patterns.TOTAL_TIME_LINE.match(line)
+        if total_time_match:
+            started = True
+            recipe.total_time = total_time_match.group(1)
+            continue
+
+        note_match = Patterns.NOTES_LINE.match(line)
+        if note_match:
+            started = True
+            recipe.notes = note_match.group(1)
             continue
 
 
@@ -149,11 +195,29 @@ def _parse_recipe(buffer: TextIO) -> Recipe:
 
     instructions = io.StringIO()
     for line in buffer:
+        nutrition_match = Patterns.NUTRITIONAL_LINE.match(line)
+        if nutrition_match:
+            recipe.nutrition = nutrition_match.group(1)
+            continue
+
+        categories_comment_match = Patterns.CATEGORIES_COMMENT_LINE.match(line)
+        if categories_comment_match:
+            for cat in categories_comment_match.group(1).split():
+                cat = cat.replace(",", "")
+                if cat not in recipe.categories:
+                    recipe.categories.append(cat)
+            continue
+
+        source_comment_match = Patterns.SOURCE_COMMENT_LINE.match(line)
+        if source_comment_match and not recipe.source:
+            recipe.source = source_comment_match.group(1)
+            continue
+
         if Patterns.COMMENT_LINE.match(line):
             continue
         instructions.write(line)
     instructions.seek(0)
-    recipe.instructions = instructions.read().strip()
+    recipe.instructions = instructions.read().strip().replace("\n\n", "\n")
 
     return recipe
 
