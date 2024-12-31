@@ -8,11 +8,14 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "duckduckgo-search>=7.1.1",
     "pydantic>=2.10.4",
 ]
 
 [project.scripts]
 recipe-converter = "recipe_converter.cli:convert"
+melarecipes-add-images = "recipe_converter.cli:melarecipes_add_images"
+
 
 [build-system]
 requires = ["hatchling"]

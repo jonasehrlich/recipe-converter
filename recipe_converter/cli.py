@@ -1,8 +1,16 @@
 import argparse
+import base64
+import logging
 import pathlib
-from typing import Protocol
-from recipe_converter import mealmaster, melarecipes
 import sys
+from typing import Protocol
+
+import primp
+from duckduckgo_search import DDGS
+
+from recipe_converter import mealmaster, melarecipes
+
+_logger = logging.getLogger(__name__)
 
 
 class Converter(Protocol):
@@ -81,3 +89,51 @@ def convert():
     raise ValueError(
         f"No converter found from {namespace.input.suffix} to {namespace.output.suffix}"
     )
+
+
+def melarecipes_add_images():
+    parser = argparse.ArgumentParser(description="Add images to a Mela collection")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
+    parser.add_argument(
+        "input",
+        type=pathlib.Path,
+        help="Path to the input file to convert.",
+    )
+    parser.add_argument(
+        "output",
+        type=pathlib.Path,
+        help="Path to save the converted output.",
+    )
+
+    namespace = parser.parse_args()
+    logging.basicConfig(
+        level=logging.DEBUG if namespace.verbose else logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
+    recipes = list(melarecipes.parse(namespace.input))
+    client = primp.Client(impersonate="chrome_131", verify=False)  # chrome_131
+
+    ddgs = DDGS()
+    try:
+        for recipe in recipes:
+            if recipe.images:
+                # We have at least one image, so we don't need to search for more
+                _logger.info("Image already present for '%s'", recipe.title)
+                continue
+            _logger.info("Searching for images for '%s'", recipe.title)
+            results = ddgs.images(
+                recipe.title,
+                safesearch="off",
+                type_image="photo",
+                size="Large",
+                max_results=1,
+            )
+            if not results:
+                _logger.warning("No images found for '%s'", recipe.title)
+                continue
+            _logger.info("Download image for '%s'", recipe.title)
+            resp = client.get(results[0]["image"])
+            recipe.images.append(base64.b64encode(resp.content).decode())
+
+    finally:
+        melarecipes.write(namespace.output, recipes)

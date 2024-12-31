@@ -83,4 +83,4 @@ def parse(path: pathlib.Path) -> collections.abc.Generator[Recipe]:
     with zipfile.ZipFile(path, "r") as archive:
         for filename in archive.namelist():
             with archive.open(filename) as file:
-                yield Recipe.model_validate(file.read())
+                yield Recipe.model_validate_json(file.read())
