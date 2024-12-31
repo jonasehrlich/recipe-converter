@@ -14,6 +14,7 @@ class IngredientsGroup:
 @dataclasses.dataclass
 class Recipe:
     title: str = ""
+    description: str = ""
     servings: str = ""
     cook_time: str = ""
     prep_time: str = ""
@@ -44,13 +45,18 @@ class Patterns:
     TOTAL_TIME_LINE = re.compile(
         r"^\s*Total Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
     )
-    SOURCE_COMMENT_LINE = re.compile(
-        r"^::Quelle:\s*:\s*(.+)", re.MULTILINE | re.IGNORECASE
-    )
+    DESCRIPTION = re.compile(r"^\s*Description?:\s*(.+)", re.MULTILINE | re.IGNORECASE)
     NOTES_LINE = re.compile(r"^\s*Notes?:\s*(.+)", re.MULTILINE | re.IGNORECASE)
 
-    CATEGORIES_COMMENT_LINE = re.compile(r"^::Stichworte\s+:\s+:\s(.+)", re.MULTILINE)
-    NUTRITIONAL_LINE = re.compile(r"^::Energie\s+:\s+:\s(.+)", re.MULTILINE)
+    SOURCE_COMMENT_LINE = re.compile(
+        r"^::Quelle\s+:\s+:\s+(.+)", re.MULTILINE | re.IGNORECASE
+    )
+    CATEGORIES_COMMENT_LINE = re.compile(
+        r"^::Stichworte\s+:\s+:\s(.+)", re.MULTILINE | re.IGNORECASE
+    )
+    NUTRITIONAL_LINE = re.compile(
+        r"^::Energie\s+:\s+:\s(.+)", re.MULTILINE | re.IGNORECASE
+    )
     COMMENT_LINE = re.compile(r"^::(.+)", re.MULTILINE)
     MULTI_SPACE = re.compile(r"\s+")
 
@@ -112,6 +118,12 @@ def _parse_header(recipe: Recipe, f: TextIO) -> None:
         if total_time_match:
             started = True
             recipe.total_time = total_time_match.group(1)
+            continue
+
+        description_match = Patterns.DESCRIPTION.match(line)
+        if description_match:
+            started = True
+            recipe.description = description_match.group(1)
             continue
 
         note_match = Patterns.NOTES_LINE.match(line)

@@ -19,6 +19,7 @@ def mealmaster_to_melarecipe(mm_recipe: mealmaster.Recipe) -> melarecipes.Recipe
 
     melarecipe = melarecipes.Recipe(
         title=mm_recipe.title,
+        text=mm_recipe.description,
         categories=mm_recipe.categories,
         yield_=mm_recipe.servings,
         ingredients=ingredients,
