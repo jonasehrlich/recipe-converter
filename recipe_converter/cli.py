@@ -168,8 +168,12 @@ def melarecipes_add_images():
                 _logger.warning("No images found for '%s'", recipe.title)
                 continue
             _logger.info("Download image for '%s'", recipe.title)
-            resp = client.get(results[0]["image"])
-            recipe.images.append(base64.b64encode(resp.content).decode())
+            try:
+                resp = client.get(results[0]["image"])
+                recipe.images.append(base64.b64encode(resp.content).decode())
+            except Exception as exc:
+                _logger.error("Failed to download image for '%s': %s", recipe.title, exc)
+                continue
 
     finally:
         melarecipes.write(namespace.output, recipes)
