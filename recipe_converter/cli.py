@@ -159,7 +159,6 @@ def melarecipes_add_images():
             _logger.info("Searching for images for '%s'", recipe.title)
             results = ddgs.images(
                 recipe.title,
-                safesearch="off",
                 type_image="photo",
                 size="Large",
                 max_results=1,
