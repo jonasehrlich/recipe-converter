@@ -26,6 +26,7 @@ def mealmaster_to_melarecipe(mm_recipe: mealmaster.Recipe) -> melarecipes.Recipe
         prep_time=mm_recipe.prep_time,
         total_time=mm_recipe.total_time,
         notes=mm_recipe.notes,
+        link=mm_recipe.source,
     )
     return melarecipe
 
@@ -70,7 +71,7 @@ def run_converter(input: pathlib.Path, output: pathlib.Path):
         ):
             converter(input, output)
             return
-    raise ValueError("No converter found for the specified input and output formats.")
+    raise ValueError(f"No converter found from {input.suffix} to {output.suffix}")
 
 
 def main():
