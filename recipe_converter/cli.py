@@ -2,6 +2,7 @@ import argparse
 import base64
 import logging
 import pathlib
+import random
 import sys
 from typing import Protocol
 
@@ -91,6 +92,39 @@ def convert():
     )
 
 
+IMPERSONATION_OPTIONS = [
+    "safari_ios_16.5",
+    "safari_ios_17.2",
+    "safari_ios_17.4.1",
+    "safari_ios_18.1.1",
+    "safari_15.3",
+    "safari_15.5",
+    "safari_15.6.1",
+    "safari_16",
+    "safari_16.5",
+    "safari_17.0",
+    "safari_17.2.1",
+    "safari_17.4.1",
+    "safari_17.5",
+    "safari_18",
+    "safari_18.2",
+    "safari_ipad_18",
+    "okhttp_3.9",
+    "okhttp_3.11",
+    "okhttp_3.13",
+    "okhttp_3.14",
+    "okhttp_4.9",
+    "okhttp_4.10",
+    "okhttp_5",
+    "edge_101",
+    "edge_122",
+    "edge_127",
+    "edge_131",
+    "firefox_109",
+    "firefox_133",
+]
+
+
 def melarecipes_add_images():
     parser = argparse.ArgumentParser(description="Add images to a Mela collection")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
@@ -111,7 +145,9 @@ def melarecipes_add_images():
         format="%(levelname)s: %(message)s",
     )
     recipes = list(melarecipes.parse(namespace.input))
-    client = primp.Client(impersonate="chrome_131", verify=False)  # chrome_131
+    client = primp.Client(
+        impersonate=random.choice(IMPERSONATION_OPTIONS), verify=False
+    )
 
     ddgs = DDGS()
     try:
