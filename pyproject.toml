@@ -3,14 +3,9 @@ name = "recipe-converter"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Jonas Ehrlich", email = "jonas.ehrlich@gmail.com" }
-]
+authors = [{ name = "Jonas Ehrlich", email = "jonas.ehrlich@gmail.com" }]
 requires-python = ">=3.13"
-dependencies = [
-    "duckduckgo-search>=7.1.1",
-    "pydantic>=2.10.4",
-]
+dependencies = ["duckduckgo-search>=7.1.1", "pydantic>=2.10.4"]
 
 [project.scripts]
 recipe-converter = "recipe_converter.cli:convert"
@@ -20,3 +15,9 @@ melarecipes-add-images = "recipe_converter.cli:melarecipes_add_images"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+
+[tool.black]
+line-length = 120
