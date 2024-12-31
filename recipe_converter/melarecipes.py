@@ -5,6 +5,7 @@ import re
 import zipfile
 import hashlib
 import pydantic.alias_generators
+import collections.abc
 
 
 class Recipe(pydantic.BaseModel):
@@ -76,3 +77,10 @@ def write(path: pathlib.Path, recipes: list[Recipe]) -> None:
             zip_file.writestr(
                 str(recipe.filename()), ta.dump_json(recipe, by_alias=True)
             )
+
+
+def parse(path: pathlib.Path) -> collections.abc.Generator[Recipe]:
+    with zipfile.ZipFile(path, "r") as archive:
+        for filename in archive.namelist():
+            with archive.open(filename) as file:
+                yield Recipe.model_validate(file.read())
