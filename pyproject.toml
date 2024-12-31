@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-recipe-converter = "recipe_converter.__main__:main"
+recipe-converter = "recipe_converter.cli:convert"
 
 [build-system]
 requires = ["hatchling"]

@@ -51,7 +51,7 @@ CONVERTERS: tuple[tuple[str, str, Converter], ...] = (
 )
 
 
-def get_arg_parser():
+def convert():
     parser = argparse.ArgumentParser(
         description="Convert recipes between different formats."
     )
@@ -65,26 +65,19 @@ def get_arg_parser():
         type=pathlib.Path,
         help="Path to save the converted output.",
     )
-    return parser
-
-
-def run_converter(input: pathlib.Path, output: pathlib.Path):
-    for converter_input_suffix, converter_output_suffix, converter in CONVERTERS:
-        if (
-            input.suffix == converter_input_suffix
-            and output.suffix == converter_output_suffix
-        ):
-            converter(input, output)
-            return
-    raise ValueError(f"No converter found from {input.suffix} to {output.suffix}")
-
-
-def main():
-    parser = get_arg_parser()
     namespace = parser.parse_args()
 
-    try:
-        run_converter(namespace.input, namespace.output)
-    except Exception as exc:
-        print(f"Error: {exc}")
-        sys.exit(1)
+    for converter_input_suffix, converter_output_suffix, converter in CONVERTERS:
+        if (
+            namespace.input.suffix == converter_input_suffix
+            and namespace.output.suffix == converter_output_suffix
+        ):
+            try:
+                converter(namespace.input, namespace.output)
+            except Exception as exc:
+                print(f"Error: {exc}")
+                sys.exit(1)
+            sys.exit(0)
+    raise ValueError(
+        f"No converter found from {namespace.input.suffix} to {namespace.output.suffix}"
+    )
