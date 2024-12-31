@@ -36,10 +36,10 @@ class Patterns:
     CATEGORIES_LINE = re.compile(r"^\s*Categories:\s*(.+)", re.MULTILINE)
     SERVINGS_LINE = re.compile(r"^\s*Servings:\s*(.+)", re.MULTILINE)
     PREP_TIME_LINE = re.compile(
-        r"^\s*Prep(?:aration) Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
+        r"^\s*Prep(?:aration)? Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
     )
     COOK_TIME_LINE = re.compile(
-        r"^\s*Cook(?:ing) Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
+        r"^\s*Cook(?:ing)? Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
     )
     TOTAL_TIME_LINE = re.compile(
         r"^\s*Total Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
@@ -47,11 +47,11 @@ class Patterns:
     SOURCE_COMMENT_LINE = re.compile(
         r"^::Quelle:\s*:\s*(.+)", re.MULTILINE | re.IGNORECASE
     )
-    NOTES_LINE = re.compile(r"^\s*Notes:\s*(.+)", re.MULTILINE | re.IGNORECASE)
+    NOTES_LINE = re.compile(r"^\s*Notes?:\s*(.+)", re.MULTILINE | re.IGNORECASE)
 
-    COMMENT_LINE = re.compile(r"^::(.+)", re.MULTILINE)
     CATEGORIES_COMMENT_LINE = re.compile(r"^::Stichworte\s+:\s+:\s(.+)", re.MULTILINE)
     NUTRITIONAL_LINE = re.compile(r"^::Energie\s+:\s+:\s(.+)", re.MULTILINE)
+    COMMENT_LINE = re.compile(r"^::(.+)", re.MULTILINE)
     MULTI_SPACE = re.compile(r"\s+")
 
 
@@ -117,14 +117,14 @@ def _parse_header(recipe: Recipe, f: TextIO) -> None:
         note_match = Patterns.NOTES_LINE.match(line)
         if note_match:
             started = True
-            recipe.notes = note_match.group(1)
+            if recipe.notes:
+                recipe.notes += "\n"
+            recipe.notes += note_match.group(1)
             continue
 
 
 def _parse_ingredients_groups(buffer: io.StringIO) -> list[IngredientsGroup]:
     """Parse the ingredient groups from the ingredients section of a Meal-Master recipe.
-
-    :param lines: _description_
     :return: List of ingredient groups
     """
     ingredients_group: IngredientsGroup | None = None
