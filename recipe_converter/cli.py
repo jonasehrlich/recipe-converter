@@ -13,7 +13,9 @@ def mealmaster_to_melarecipe(mm_recipe: mealmaster.Recipe) -> melarecipes.Recipe
     """Convert a Meal-Master recipe to a Mela recipe."""
     ingredients = ""
     for group in mm_recipe.ingredients_groups:
-        ingredients += f"# {group.title}\n{'\n'.join(group.ingredients)}\n"
+        if group.title:
+            ingredients += f"# {group.title}\n"
+        ingredients += f"{'\n'.join(group.ingredients)}\n"
 
     melarecipe = melarecipes.Recipe(
         title=mm_recipe.title,
@@ -38,6 +40,8 @@ def mealmaster_to_melarecipes(input: pathlib.Path, output: pathlib.Path):
 
         for mm_recipe in mm_recipes:
             mela_recipes.append(mealmaster_to_melarecipe(mm_recipe))
+
+        print("Parsed and converted", len(mela_recipes), "recipes")
         melarecipes.write(output, mela_recipes)
 
 

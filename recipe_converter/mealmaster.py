@@ -145,10 +145,10 @@ def _parse_ingredients_groups(buffer: io.StringIO) -> list[IngredientsGroup]:
             continue
         if not ingredients_group:
             # We are at the beginning of the file, so we need to create a default group.
-            ingredients_group = IngredientsGroup(title="Ingredients")
+            ingredients_group = IngredientsGroup(title="")
         stripped_line = Patterns.MULTI_SPACE.sub(" ", line.strip())
         if stripped_line.startswith("-"):
-            # This line is a continuation of the previous ingredient.
+            # Mealmaster only supports a limited line length for ingredients. Longer lines are continued with a '-' character.
             if not ingredients_group.ingredients:
                 # There is no previous ingredient to continue.
                 ingredients_group.ingredients.append(stripped_line[2:])
