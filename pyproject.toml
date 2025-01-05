@@ -13,8 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-recipe-converter = "recipe_converter.cli:convert"
-melarecipes-add-images = "recipe_converter.cli:melarecipes_add_images"
+recipe-converter = "recipe_converter.cli:cli"
 
 
 [build-system]
