@@ -157,6 +157,7 @@ name = "recipe-converter"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "click" },
     { name = "duckduckgo-search" },
     { name = "pillow" },
     { name = "pydantic" },
@@ -164,6 +165,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "click", specifier = ">=8.1.8" },
     { name = "duckduckgo-search", specifier = ">=7.1.1" },
     { name = "pillow", specifier = ">=11.1.0" },
     { name = "pydantic", specifier = ">=2.10.4" },
