@@ -1,7 +1,9 @@
 import logging
+
 import click
 
 from recipe_converter import convert, mela
+
 
 @click.group()
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")

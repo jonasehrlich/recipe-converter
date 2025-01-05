@@ -1,11 +1,12 @@
-import pydantic
-import uuid
+import collections.abc
+import hashlib
 import pathlib
 import re
+import uuid
 import zipfile
-import hashlib
+
+import pydantic
 import pydantic.alias_generators
-import collections.abc
 
 
 class Recipe(pydantic.BaseModel):
@@ -20,22 +21,14 @@ class Recipe(pydantic.BaseModel):
         default="",
         description="Short description of the recipe which is displayed after the title and info in Mela. Supported: Markdown: Links.",
     )
-    images: list[str] = pydantic.Field(
-        default_factory=list, description="Array of base64 encoded images."
-    )
+    images: list[str] = pydantic.Field(default_factory=list, description="Array of base64 encoded images.")
     categories: list[str] = pydantic.Field(
         default_factory=list,
         description="Array of category names. Please: note that Mela currently does not allow , in a category name.",
     )
-    yield_: str = pydantic.Field(
-        default="", alias=str("yield"), description="Yield or servings"
-    )
-    prep_time: str = pydantic.Field(
-        default="", alias=str("prepTime"), description="Preparation time"
-    )
-    cook_time: str = pydantic.Field(
-        default="", alias=str("cookTime"), description="Cook time"
-    )
+    yield_: str = pydantic.Field(default="", alias=str("yield"), description="Yield or servings")
+    prep_time: str = pydantic.Field(default="", alias=str("prepTime"), description="Preparation time")
+    cook_time: str = pydantic.Field(default="", alias=str("cookTime"), description="Cook time")
     total_time: str = pydantic.Field(
         default="",
         alias=str("totalTime"),
@@ -63,20 +56,17 @@ class Recipe(pydantic.BaseModel):
     )
 
     def filename(self) -> pathlib.Path:
+        """Get a filename for the recipe. It contains a kebap-case version of the title and a hash of the id."""
         cleaned_str = re.sub(r"[^a-zA-Z0-9\s]", "", self.title)
         kebap_str = cleaned_str.replace(" ", "-").lower()
-        return pathlib.Path(
-            f"{kebap_str}-{hashlib.sha256(self.id.encode()).hexdigest()[:6]}.melarecipe"
-        )
+        return pathlib.Path(f"{kebap_str}-{hashlib.sha256(self.id.encode()).hexdigest()[:6]}.melarecipe")
 
 
 def write(path: pathlib.Path, recipes: list[Recipe]) -> None:
     ta = pydantic.TypeAdapter(Recipe)
     with zipfile.ZipFile(path, "w") as zip_file:
         for recipe in recipes:
-            zip_file.writestr(
-                str(recipe.filename()), ta.dump_json(recipe, by_alias=True)
-            )
+            zip_file.writestr(str(recipe.filename()), ta.dump_json(recipe, by_alias=True))
 
 
 def parse(path: pathlib.Path) -> collections.abc.Generator[Recipe]:

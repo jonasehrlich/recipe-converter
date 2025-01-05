@@ -1,7 +1,7 @@
-import re
-import io
-import dataclasses
 import collections.abc
+import dataclasses
+import io
+import re
 from typing import TextIO
 
 
@@ -36,27 +36,15 @@ class Patterns:
     TITLE_LINE = re.compile(r"^\s*Title:\s*(.+)", re.MULTILINE)
     CATEGORIES_LINE = re.compile(r"^\s*Categories:\s*(.+)", re.MULTILINE)
     SERVINGS_LINE = re.compile(r"^\s*Servings:\s*(.+)", re.MULTILINE)
-    PREP_TIME_LINE = re.compile(
-        r"^\s*Prep(?:aration)? Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
-    )
-    COOK_TIME_LINE = re.compile(
-        r"^\s*Cook(?:ing)? Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
-    )
-    TOTAL_TIME_LINE = re.compile(
-        r"^\s*Total Time:\s*(.+)", re.MULTILINE | re.IGNORECASE
-    )
+    PREP_TIME_LINE = re.compile(r"^\s*Prep(?:aration)? Time:\s*(.+)", re.MULTILINE | re.IGNORECASE)
+    COOK_TIME_LINE = re.compile(r"^\s*Cook(?:ing)? Time:\s*(.+)", re.MULTILINE | re.IGNORECASE)
+    TOTAL_TIME_LINE = re.compile(r"^\s*Total Time:\s*(.+)", re.MULTILINE | re.IGNORECASE)
     DESCRIPTION = re.compile(r"^\s*Description?:\s*(.+)", re.MULTILINE | re.IGNORECASE)
     NOTES_LINE = re.compile(r"^\s*Notes?:\s*(.+)", re.MULTILINE | re.IGNORECASE)
 
-    SOURCE_COMMENT_LINE = re.compile(
-        r"^::Quelle\s+:\s+:\s+(.+)", re.MULTILINE | re.IGNORECASE
-    )
-    CATEGORIES_COMMENT_LINE = re.compile(
-        r"^::Stichworte\s+:\s+:\s(.+)", re.MULTILINE | re.IGNORECASE
-    )
-    NUTRITIONAL_LINE = re.compile(
-        r"^::Energie\s+:\s+:\s(.+)", re.MULTILINE | re.IGNORECASE
-    )
+    SOURCE_COMMENT_LINE = re.compile(r"^::Quelle\s+:\s+:\s+(.+)", re.MULTILINE | re.IGNORECASE)
+    CATEGORIES_COMMENT_LINE = re.compile(r"^::Stichworte\s+:\s+:\s(.+)", re.MULTILINE | re.IGNORECASE)
+    NUTRITIONAL_LINE = re.compile(r"^::Energie\s+:\s+:\s(.+)", re.MULTILINE | re.IGNORECASE)
     COMMENT_LINE = re.compile(r"^::(.+)", re.MULTILINE)
     MULTI_SPACE = re.compile(r"\s+")
 
@@ -90,9 +78,7 @@ def _parse_header(recipe: Recipe, f: TextIO) -> None:
 
         categories_match = Patterns.CATEGORIES_LINE.match(line)
         if categories_match:
-            recipe.categories = [
-                category.strip() for category in categories_match.group(1).split(",")
-            ]
+            recipe.categories = [category.strip() for category in categories_match.group(1).split(",")]
             started = True
             continue
 
