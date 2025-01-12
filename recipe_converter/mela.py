@@ -7,7 +7,7 @@ import click
 import primp
 from duckduckgo_search import DDGS
 
-from . import melarecipes
+from . import image, melarecipes
 
 _logger = logging.getLogger(__name__)
 
@@ -50,11 +50,11 @@ IMPERSONATION_OPTIONS = [
 ]
 
 
-@mela.command(help="Add images to recipes based on DuckDuckGo image search.")
+@mela.command(help="Search images for recipes based on DuckDuckGo image search.")
 @click.option("--scale-width", type=int, help="Scale down images to this width.")
 @click.argument("input", type=pathlib.Path)
 @click.argument("output", type=pathlib.Path)
-def add_images(input: pathlib.Path, output: pathlib.Path, scale_width: int | None):
+def search_images(input: pathlib.Path, output: pathlib.Path, scale_width: int | None):
     recipes = list(melarecipes.parse(input))
     client = primp.Client(impersonate=random.choice(IMPERSONATION_OPTIONS), verify=False)
 
@@ -78,10 +78,37 @@ def add_images(input: pathlib.Path, output: pathlib.Path, scale_width: int | Non
             _logger.info("Download image for '%s'", recipe.title)
             try:
                 resp = client.get(results[0]["image"])
-                recipe.images.append(base64.b64encode(resp.content).decode())
             except Exception as exc:
                 _logger.error("Failed to download image for '%s': %s", recipe.title, exc)
                 continue
+            try:
+                img = resp.content
+                if scale_width:
+                    img = image.scale_down(img, width=scale_width)
+                recipe.images.append(base64.b64encode(img).decode())
+            except Exception as exc:
+                _logger.error("Failed to scale image for '%s': %s", recipe.title, exc)
+                continue
 
+    finally:
+        melarecipes.write(output, recipes)
+
+
+@mela.command(help="Scale-down images in the database.")
+@click.option("--scale-width", type=int, required=True, help="Scale down images to this width.")
+@click.argument("input", type=pathlib.Path)
+@click.argument("output", type=pathlib.Path)
+def scale_down_images(input: pathlib.Path, output: pathlib.Path, scale_width: int):
+    recipes = list(melarecipes.parse(input))
+    try:
+        for recipe in recipes:
+            if recipe.images:
+                for i, img in enumerate(recipe.images):
+                    try:
+                        recipe.images[i] = base64.b64encode(
+                            image.scale_down(base64.b64decode(img), width=scale_width)
+                        ).decode()
+                    except Exception as exc:
+                        _logger.error("Failed to scale image for '%s': %s", recipe.title, exc)
     finally:
         melarecipes.write(output, recipes)

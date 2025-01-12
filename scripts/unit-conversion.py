@@ -64,7 +64,9 @@ def confirm(prompt_: str, default: Literal["y", "n"] | None = None) -> bool:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert units used in ingredients of melarecipes collections from Meal-Master format to a Mela compatible one.")
+    parser = argparse.ArgumentParser(
+        description="Convert units used in ingredients of melarecipes collections from Meal-Master format to a Mela compatible one."
+    )
     parser.add_argument(
         "input",
         type=pathlib.Path,

@@ -9,6 +9,7 @@ dependencies = [
     "click>=8.1.8",
     "duckduckgo-search>=7.1.1",
     "pillow>=11.1.0",
+    "pillow-heif>=0.21.0",
     "pydantic>=2.10.4",
 ]
 

@@ -6,7 +6,6 @@ import uuid
 import zipfile
 
 import pydantic
-import pydantic.alias_generators
 
 
 class Recipe(pydantic.BaseModel):
